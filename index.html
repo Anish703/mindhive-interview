@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Product Recommender</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      margin: 0;
+      padding: 0;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      height: 100vh;
+      background-color: #f4f4f4;
+    }
+
+    .container {
+      text-align: center;
+      max-width: 600px;
+      width: 100%;
+      padding: 20px;
+      background-color: #fff;
+      border-radius: 8px;
+      box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+    }
+
+    #queryInput {
+      width: 100%;
+      padding: 8px;
+      margin-bottom: 16px;
+      box-sizing: border-box;
+    }
+
+    #submitButton {
+      background-color: #4caf50;
+      color: white;
+      padding: 10px 15px;
+      border: none;
+      border-radius: 4px;
+      cursor: pointer;
+    }
+
+    #recommendations {
+      text-align: left;
+      margin-top: 20px;
+    }
+
+    .product {
+      margin-bottom: 16px;
+      padding: 10px;
+      border: 1px solid #ddd;
+      border-radius: 4px;
+    }
+  </style>
+</head>
+<body>
+
+<div class="container">
+  <h2>Product Recommender</h2>
+
+  <input type="text" id="queryInput" placeholder="Enter your query">
+
+  <button id="submitButton" onclick="getRecommendations()">Submit</button>
+
+  <div id="recommendations"></div>
+</div>
+
+<script>
+  async function getRecommendations() {
+    const query = document.getElementById('queryInput').value;
+    
+    if (query.trim() === "") {
+      alert("Please enter a query");
+      return;
+    }
+
+    const response = await fetch('http://127.0.0.1:8000/recommend/', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({ query: query }),
+    });
+
+    const data = await response.json();
+    displayRecommendations(data);
+  }
+
+  function displayRecommendations(recommendations) {
+    const recommendationsContainer = document.getElementById('recommendations');
+    recommendationsContainer.innerHTML = '';
+
+    if (recommendations.length === 0) {
+      recommendationsContainer.innerHTML = '<p>No recommendations found.</p>';
+      return;
+    }
+
+    recommendations.forEach(product => {
+      const productDiv = document.createElement('div');
+      productDiv.className = 'product';
+
+      const title = document.createElement('h3');
+      title.textContent = product.title;
+
+      const description = document.createElement('p');
+      description.textContent = product.description;
+
+      const price = document.createElement('p');
+      price.textContent = 'Price: ' + product.price;
+
+      productDiv.appendChild(title);
+      productDiv.appendChild(description);
+      productDiv.appendChild(price);
+
+      recommendationsContainer.appendChild(productDiv);
+    });
+  }
+</script>
+
+</body>
+</html>
+
